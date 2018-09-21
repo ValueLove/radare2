@@ -197,13 +197,16 @@ static RList* sections(RBinFile *bf) {
 		} else {
 			//fix those sections that could have been fucked up
 			//if the section does have -x- but not -r- add it
-			if (R_PERM_X & sections[i].perm) {
+			if (sections[i].perm) {
 				ptr->perm |= R_PERM_R;
 			}
 		}
+#if 0
+		// this is causing may tests to fail because rx != srx
 		if (sections[i].perm & R_PERM_SHAR) {
 			ptr->perm |= R_PERM_SHAR;
 		}
+#endif
 #define X 1
 #define ROW (4 | 2)
 		if (ptr->perm & ROW && !(ptr->perm & X) && ptr->size > 0) {
