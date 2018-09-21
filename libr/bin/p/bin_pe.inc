@@ -185,28 +185,28 @@ static RList* sections(RBinFile *bf) {
 		ptr->paddr = sections[i].paddr;
 		ptr->vaddr = sections[i].vaddr + ba;
 		ptr->add = true;
-		ptr->srwx = 0;
-		if (R_BIN_PE_SCN_IS_EXECUTABLE (sections[i].flags)) {
-			ptr->srwx |= R_BIN_SCN_EXECUTABLE;
+		ptr->perm = 0;
+		if (R_BIN_PE_SCN_IS_EXECUTABLE (sections[i].perm)) {
+			ptr->perm |= R_PERM_X;
 		}
-		if (R_BIN_PE_SCN_IS_WRITABLE (sections[i].flags)) {
-			ptr->srwx |= R_BIN_SCN_WRITABLE;
+		if (R_BIN_PE_SCN_IS_WRITABLE (sections[i].perm)) {
+			ptr->perm |= R_PERM_W;
 		}
-		if (R_BIN_PE_SCN_IS_READABLE (sections[i].flags)) {
-			ptr->srwx |= R_BIN_SCN_READABLE;
+		if (R_BIN_PE_SCN_IS_READABLE (sections[i].perm)) {
+			ptr->perm |= R_PERM_R;
 		} else {
 			//fix those sections that could have been fucked up
 			//if the section does have -x- but not -r- add it
-			if (R_BIN_PE_SCN_IS_EXECUTABLE (sections[i].flags)) {
-				ptr->srwx |= R_BIN_SCN_READABLE;
+			if (R_PERM_X & sections[i].perm) {
+				ptr->perm |= R_PERM_R;
 			}
 		}
-		if (R_BIN_PE_SCN_IS_SHAREABLE (sections[i].flags)) {
-			ptr->srwx |= R_BIN_SCN_SHAREABLE;
+		if (sections[i].perm & R_PERM_SHAR) {
+			ptr->perm |= R_PERM_SHAR;
 		}
 #define X 1
 #define ROW (4 | 2)
-		if (ptr->srwx & ROW && !(ptr->srwx & X) && ptr->size > 0) {
+		if (ptr->perm & ROW && !(ptr->perm & X) && ptr->size > 0) {
 			if (!strcmp (ptr->name, ".rsrc") ||
 			  	!strcmp (ptr->name, ".data") ||
 				!strcmp (ptr->name, ".rdata")) {
